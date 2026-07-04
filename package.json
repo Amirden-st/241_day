@@ -1,0 +1,13 @@
+{
+  "name": "zombie-world-vn",
+  "version": "1.0.0",
+  "description": "241-й день — визуальная новелла (зомби-апокалипсис, драма)",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

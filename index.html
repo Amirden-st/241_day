@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>241-й день — визуальная новелла</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ГЛАВНОЕ МЕНЮ -->
+  <div id="menu" class="screen visible" data-testid="menu">
+    <div class="menu-bg" id="menu-bg"></div>
+    <div class="menu-inner">
+      <div class="menu-title">
+        <h1>241-й ДЕНЬ</h1>
+        <p class="subtitle">история о том, что остаётся, когда не остаётся ничего</p>
+      </div>
+      <nav class="menu-nav">
+        <button id="btn-new" data-testid="btn-new">Новая игра</button>
+        <button id="btn-continue" data-testid="btn-continue" disabled>Продолжить</button>
+        <button id="btn-endings" data-testid="btn-endings">Концовки</button>
+      </nav>
+      <div class="menu-hint">наушники рекомендуются · выборы имеют значение</div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН КОНЦОВОК -->
+  <div id="endings-screen" class="screen" data-testid="endings-screen">
+    <div class="endings-inner">
+      <h2>Концовки</h2>
+      <ul id="endings-list"></ul>
+      <button id="btn-endings-back">Назад</button>
+    </div>
+  </div>
+
+  <!-- ИГРА -->
+  <div id="game" class="screen" data-testid="game">
+    <div id="scene" class="scene"></div>
+    <canvas id="fx"></canvas>
+    <div id="vignette"></div>
+    <div id="sprite-layer">
+      <div id="sprite" class="sprite"></div>
+    </div>
+
+    <!-- Титульная карточка главы -->
+    <div id="title-card" data-testid="title-card">
+      <div class="tc-chapter" id="tc-chapter"></div>
+      <div class="tc-name" id="tc-name"></div>
+    </div>
+
+    <!-- Диалоговое окно -->
+    <div id="dialogue" data-testid="dialogue">
+      <div id="speaker" data-testid="speaker"></div>
+      <div id="text" data-testid="text"></div>
+      <div id="advance-hint">▼</div>
+    </div>
+
+    <!-- Выборы -->
+    <div id="choices" data-testid="choices"></div>
+
+    <!-- HUD -->
+    <div id="hud">
+      <button id="btn-mute" title="звук">♪</button>
+      <button id="btn-menu" title="в меню">меню</button>
+    </div>
+
+    <!-- Экран концовки -->
+    <div id="ending-screen" data-testid="ending-screen">
+      <div class="ending-inner">
+        <div class="ending-label">КОНЕЦ</div>
+        <h2 id="ending-title" data-testid="ending-title"></h2>
+        <p id="ending-text"></p>
+        <button id="btn-ending-menu" data-testid="btn-ending-menu">В меню</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/backgrounds.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/story1.js"></script>
+<script src="js/story2.js"></script>
+<script src="js/engine.js"></script>
+</body>
+</html>
