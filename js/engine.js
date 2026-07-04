@@ -160,6 +160,7 @@
     if (fx.love) state.love = (state.love || 0) + fx.love;
     if (fx.trust) state.trust = (state.trust || 0) + fx.trust;
     if (fx.flags) fx.flags.forEach(f => { state[f] = true; });
+    if (fx.unset) fx.unset.forEach(f => { delete state[f]; });
   }
 
   function show(id) {
