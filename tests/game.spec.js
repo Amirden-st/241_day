@@ -64,6 +64,7 @@ test.describe('Целостность сюжета', () => {
           { dog: true, dog_dead: true, bitten: true, told_bite: true },
           { bitten: true, told_bite: true, self_treated: true }, { bitten: true, hid_bite: true, self_treated: true },
           { dog: true, warm_smoke: true, kissed: true }, { winter_cough: true, lost_gear: true, yard_supplies: true },
+          { flare_shot: true, sem_saved: true, dog: true }, { sem_dead_fast: true, horde_ahead: true },
           { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true }])
           samples.push(Object.assign({ love, trust: love }, extra));
       const check = (from, next) => {
@@ -101,6 +102,7 @@ test.describe('Целостность сюжета', () => {
           { dog: true, dog_dead: true, bitten: true, told_bite: true },
           { bitten: true, told_bite: true, self_treated: true }, { bitten: true, hid_bite: true, self_treated: true },
           { dog: true, warm_smoke: true, kissed: true }, { winter_cough: true, lost_gear: true, yard_supplies: true },
+          { flare_shot: true, sem_saved: true, dog: true }, { sem_dead_fast: true, horde_ahead: true },
           { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true }])
           samples.push(Object.assign({ love, trust: love }, extra));
       const targetsOf = (n) => {
@@ -129,7 +131,8 @@ test.describe('Целостность сюжета', () => {
         if (n.bg) {
           if (INTERIOR.has(n.bg) && ['rain', 'snow', 'ash', 'embers'].includes(fx))
             bad.push(`${id}: «${fx}» внутри (${n.bg})`);
-          if (OUTDOOR.has(n.bg) && ['embers', 'dust'].includes(fx))
+          const emberOk = n.bg === 'gas' && fx === 'embers'; // пожар на заправке — легитимен
+          if (OUTDOOR.has(n.bg) && ['embers', 'dust'].includes(fx) && !emberOk)
             bad.push(`${id}: «${fx}» на улице (${n.bg})`);
         }
         if (n.type !== 'ending') targetsOf(n).forEach(t => queue.push([t, fx]));
