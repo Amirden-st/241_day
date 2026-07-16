@@ -6,6 +6,9 @@
   --dim: #8a8578;
   --accent: #b3402e;
   --panel: rgba(8, 9, 11, 0.82);
+  /* потолок игрового кадра: дальше арт 1536px мылится при апскейле */
+  --stage-max-w: 2560px;
+  --stage-max-h: 1440px;
 }
 
 html, body {
@@ -19,8 +22,27 @@ html, body {
 
 #app {
   position: fixed; inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center; justify-content: center;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Игровой кадр. На обычных экранах — во весь экран, как раньше.
+   На экранах шире 16:9 и на 4K кадр фиксируется (аспект 16:9,
+   потолок 2560×1440), вокруг — чёрные поля: арт не растягивается
+   и не мылится, композиция фонов не режется. */
+#stage {
+  position: relative;
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+@media (min-aspect-ratio: 16/9) {
+  #stage {
+    width: min(100vw, calc(100vh * 16 / 9), var(--stage-max-w));
+    height: min(100vh, var(--stage-max-h));
+  }
 }
 
 .screen {

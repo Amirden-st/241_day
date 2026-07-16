@@ -47,8 +47,9 @@
   let fxMode = null;
 
   function resizeFx() {
-    fxCanvas.width = innerWidth;
-    fxCanvas.height = innerHeight;
+    // размер по игровому кадру (#stage), а не по окну: на широких экранах кадр уже
+    fxCanvas.width = fxCanvas.clientWidth || innerWidth;
+    fxCanvas.height = fxCanvas.clientHeight || innerHeight;
   }
   addEventListener('resize', resizeFx);
   resizeFx();
@@ -58,7 +59,10 @@
     fxMode = mode;
     particles = [];
     if (!mode) return;
-    const count = { rain: 140, ash: 45, dust: 30, embers: 40, snow: 80 }[mode] || 0;
+    const base = { rain: 140, ash: 45, dust: 30, embers: 40, snow: 80 }[mode] || 0;
+    // плотность выровнена под 1920×1080: на большом кадре частиц больше
+    const k = Math.min(2.5, Math.max(1, (fxCanvas.width * fxCanvas.height) / (1920 * 1080)));
+    const count = Math.round(base * k);
     for (let i = 0; i < count; i++) particles.push(spawn(mode, true));
   }
 

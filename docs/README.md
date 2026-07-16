@@ -11,4 +11,4 @@
 
 **Игра:** https://amirden-st.github.io/241_day/
 **Запуск локально:** `npm start` → http://localhost:8341
-**Тесты:** `npm test` (Playwright, 17 e2e)
+**Тесты:** `npm test` (Playwright, 20 e2e)

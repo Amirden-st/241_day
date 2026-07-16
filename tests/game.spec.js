@@ -65,7 +65,11 @@ test.describe('Целостность сюжета', () => {
           { bitten: true, told_bite: true, self_treated: true }, { bitten: true, hid_bite: true, self_treated: true },
           { dog: true, warm_smoke: true, kissed: true }, { winter_cough: true, lost_gear: true, yard_supplies: true },
           { flare_shot: true, sem_saved: true, dog: true }, { sem_dead_fast: true, horde_ahead: true },
-          { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true }])
+          { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true },
+          { knife_given: true, dog: true, warm_smoke: true },
+          { bite_rift: true, bitten: true, hid_bite: true, self_treated: true },
+          { hands_later: true, sem_saved: true, flare_shot: true, kissed: true },
+          { knife_given: true, winter_cough: true, lost_gear: true, horde_ahead: true }])
           samples.push(Object.assign({ love, trust: love }, extra));
       const check = (from, next) => {
         if (typeof next === 'string') {
@@ -103,7 +107,11 @@ test.describe('Целостность сюжета', () => {
           { bitten: true, told_bite: true, self_treated: true }, { bitten: true, hid_bite: true, self_treated: true },
           { dog: true, warm_smoke: true, kissed: true }, { winter_cough: true, lost_gear: true, yard_supplies: true },
           { flare_shot: true, sem_saved: true, dog: true }, { sem_dead_fast: true, horde_ahead: true },
-          { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true }])
+          { lost_gear: true, horde_ahead: true, swing_left: true, said_notyet: true },
+          { knife_given: true, dog: true, warm_smoke: true },
+          { bite_rift: true, bitten: true, hid_bite: true, self_treated: true },
+          { hands_later: true, sem_saved: true, flare_shot: true, kissed: true },
+          { knife_given: true, winter_cough: true, lost_gear: true, horde_ahead: true }])
           samples.push(Object.assign({ love, trust: love }, extra));
       const targetsOf = (n) => {
         const out = [];
@@ -283,12 +291,76 @@ test.describe('Концовки', () => {
     await expect(page.getByTestId('ending-title')).toHaveText('ПУСТОТА');
   });
 
-  test('выбор заправки ведёт к «ОГОНЁК»', async ({ page }) => {
+  test('выбор остаться на станции ведёт к «ОГОНЁК»', async ({ page }) => {
     test.setTimeout(120000);
     await page.goto(FAST);
     await page.getByTestId('btn-new').click();
-    await page.evaluate(() => window.game.jump('c5_choice', { love: 6, trust: 3 }));
-    await autoPlay(page, { choose: async () => 1 }); // «К Семёнычу»
+    await page.evaluate(() => window.game.jump('stay_choice', { love: 6, trust: 3, sem_saved: true }));
+    await autoPlay(page, { choose: async () => 1 }); // «Остаёмся»
     await expect(page.getByTestId('ending-title')).toHaveText('ОГОНЁК');
+  });
+});
+
+test.describe('Судьба Семёныча и нож', () => {
+  test('нож, отданный у костра, зимой не предлагается снова', async ({ page }) => {
+    await page.goto(FAST);
+    await page.getByTestId('btn-new').click();
+    await page.evaluate(() => window.game.jump('wb5', { knife_given: true, love: 5, trust: 5 }));
+    await page.locator('#dialogue').click();
+    await expect.poll(() => page.evaluate(() => window.game.nodeId())).toBe('w6_have');
+
+    // jump мержит состояние — флаг надо явно погасить
+    await page.evaluate(() => window.game.jump('wb5', { knife_given: false, love: 5, trust: 5 }));
+    await page.locator('#dialogue').click();
+    await expect.poll(() => page.evaluate(() => window.game.nodeId())).toBe('w6');
+  });
+
+  test('осаду заправки не обойти: из-за моста все концовки лежат за ней', async ({ page }) => {
+    await page.goto(FAST);
+    const endingsAvoidingSiege = await page.evaluate(() => {
+      const S = window.game.story;
+      const samples = [];
+      for (const love of [0, 3, 5, 8, 12])
+        for (const extra of [{}, { bitten: true, told_bite: true }, { bitten: true, hid_bite: true },
+          { bitten: true, told_bite: true, self_treated: true }, { bitten: true, hid_bite: true, self_treated: true },
+          { bite_rift: true, bitten: true, hid_bite: true, self_treated: true },
+          { dog: true, flare_shot: true }, { horde_ahead: true, lost_gear: true, knife_given: true }])
+          samples.push(Object.assign({ love, trust: love }, extra));
+      const targets = (n) => {
+        const out = [];
+        const push = (nx) => {
+          if (typeof nx === 'string') out.push(nx);
+          else if (typeof nx === 'function') samples.forEach(s => out.push(nx(s)));
+        };
+        if (n.next) push(n.next);
+        if (n.choices) n.choices.forEach(c => push(c.next));
+        return [...new Set(out)];
+      };
+      const seen = new Set(['em5']); // «вырезаем» осаду из графа
+      const queue = ['h_flare1'];
+      const reached = [];
+      while (queue.length) {
+        const id = queue.pop();
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const n = S[id];
+        if (!n) continue;
+        if (n.type === 'ending') { reached.push(id); continue; }
+        targets(n).forEach(t => queue.push(t));
+      }
+      return reached;
+    });
+    expect(endingsAvoidingSiege).toEqual([]);
+  });
+
+  test('после похорон тёплая пара выбирает север — «РАССВЕТ»', async ({ page }) => {
+    test.setTimeout(120000);
+    await page.goto(FAST);
+    await page.getByTestId('btn-new').click();
+    await page.evaluate(() => window.game.jump('em_after', { love: 6, trust: 5, sem_dead_fast: true }));
+    await page.locator('#dialogue').click();
+    await expect.poll(() => page.evaluate(() => window.game.nodeId())).toBe('stay_choice');
+    await autoPlay(page); // первый выбор — «на север»
+    await expect(page.getByTestId('ending-title')).toHaveText('РАССВЕТ');
   });
 });
